@@ -15,15 +15,17 @@ class NewsApiService {
             .build()
         TopHeadlinesApi=retrofit.create(NewsApiTopHeadlines::class.java)
     }
-    suspend fun getTopHeadlines():NewsResponse{
-        return TopHeadlinesApi.getTopHeadlines()
+    suspend fun getTopHeadlines(category:String?,country:String?):NewsResponse{
+        return TopHeadlinesApi.getTopHeadlines(category=category,country=country)
     }
 
     interface NewsApiTopHeadlines{
         @GET("/v2/top-headlines")
         suspend fun getTopHeadlines(
                 @Query("country") country:String?="in",
-                @Query("apiKey") apiKey: String?="f2b7a577139f4631b5add4f6d7026a79"
+                @Query("apiKey") apiKey: String="f2b7a577139f4631b5add4f6d7026a79",
+                @Query("category") category:String?="general",
+                @Query("pageSize") limit:Int?=100
         ): NewsResponse
     }
 }

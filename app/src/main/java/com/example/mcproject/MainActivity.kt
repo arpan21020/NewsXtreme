@@ -1,8 +1,11 @@
 package com.example.mcproject
 
+import UserLocation
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,7 +24,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableTarget
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,28 +39,46 @@ import com.example.mcproject.api.Article
 import com.example.mcproject.ui.theme.MCProjectTheme
 
 class MainActivity : ComponentActivity() {
+    val user_location:UserLocation=UserLocation(this)
+    companion object {
+        lateinit var appContext: Context
+            private set
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        appContext = applicationContext
         enableEdgeToEdge()
         setContent {
             MCProjectTheme {
-                MainScreen()
+                MainScreen(user_location)
             }
         }
     }
 }
 
 @Composable
-fun MainScreen(){
+fun MainScreen(user_location:UserLocation){
+    var latitude by remember { mutableStateOf(0.0) }
+    var longitude by remember { mutableStateOf(0.0) }
+
+    latitude=user_location.getUserLocation(context = MainActivity.appContext).latitude
+    longitude=user_location.getUserLocation(context = MainActivity.appContext).longitude
+
     val viewModel:NewsViewModel=viewModel()
     val headlines=viewModel.topHeadlines.value
     val articles=headlines.articles
-//    MyButton()
-    LazyColumn(contentPadding = PaddingValues(16.dp)) {
-        items(articles){article->
-            News(article = article)
+    Column {
+        MyButton(viewModel)
+        Log.d("LENGTH","${articles.size}")
+        Log.d("LENGTH","${viewModel.category.value}")
+        LazyColumn(contentPadding = PaddingValues(16.dp)) {
+            items(articles){article->
+                News(article = article)
 
+            }
         }
+
     }
 }
 
@@ -84,13 +108,18 @@ fun News(article: Article?){
 
 }
 @Composable
-fun MyButton() {
+fun MyButton(viewModel:NewsViewModel) {
     val context = LocalContext.current
     val intent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/")) }
 
-    Button(modifier = Modifier.fillMaxWidth().padding(top=36.dp),
+    Button(modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 36.dp),
 
-        onClick = { context.startActivity(intent) }) {
+        onClick = {
+            viewModel.updateCategory("sports")
+//            context.startActivity(intent)
+        }) {
         Text(text = "Navigate to Google!")
     }
 }

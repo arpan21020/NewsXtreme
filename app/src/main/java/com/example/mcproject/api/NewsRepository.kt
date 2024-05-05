@@ -3,8 +3,8 @@ package com.example.mcproject.api
 class NewsRepository() {
     private val newsService:NewsApiService = NewsApiService()
 
-    suspend fun getTopHeadlines():NewsResponse{
-        return newsService.getTopHeadlines()
+    suspend fun getTopHeadlines(category:String?,country:String?):NewsResponse{
+        return newsService.getTopHeadlines(category,country=country)
     }
 
 }
