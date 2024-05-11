@@ -30,6 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +41,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mcproject.NewsViewModel.NewsViewModel
 import com.example.mcproject.api.Article
 import com.example.mcproject.ui.theme.MCProjectTheme
+
+
+
 
 class MainActivity : ComponentActivity() {
     val user_location:UserLocation=UserLocation(this)
@@ -51,10 +58,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MCProjectTheme {
-                MainScreen(user_location)
+                CustomFontText()
             }
         }
     }
+
+    private val CustomFont = FontFamily(
+        Font(resId = R.font.montserrat_semibold, weight = FontWeight.SemiBold, style = FontStyle.Normal)
+        // Add more Font instances for more font weights and styles if necessary
+    )
+    @Preview(showBackground = true)
+    @Composable
+    fun CustomFontText() {
+        Text(
+            text = "Hello, World!",
+            fontFamily = CustomFont,
+            fontSize = 16.sp
+        )
+    }
+
 }
 
 @Composable
@@ -81,6 +103,9 @@ fun MainScreen(user_location:UserLocation){
 
     }
 }
+
+
+
 
 @Composable
 fun News(article: Article?){
@@ -132,7 +157,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Preview(showBackground = true)
+
 @Composable
 fun GreetingPreview() {
     MCProjectTheme {
