@@ -37,9 +37,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mcproject.NewsViewModel.DatabaseViewModel
 import com.example.mcproject.NewsViewModel.NewsViewModel
 import com.example.mcproject.api.Article
+import com.example.mcproject.database.NewsData
+import com.example.mcproject.database.NewsDatabase
 import com.example.mcproject.ui.theme.MCProjectTheme
 
 
@@ -54,11 +58,14 @@ class MainActivity : ComponentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val DBviewModel= ViewModelProvider(this).get(DatabaseViewModel::class.java)
+
         appContext = applicationContext
         enableEdgeToEdge()
         setContent {
             MCProjectTheme {
-                CustomFontText()
+//                CustomFontText()
+                MainScreen(user_location = user_location,DBviewModel)
             }
         }
     }
@@ -80,7 +87,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(user_location:UserLocation){
+fun MainScreen(user_location:UserLocation,DBviewModel: DatabaseViewModel){
     var latitude by remember { mutableStateOf(0.0) }
     var longitude by remember { mutableStateOf(0.0) }
 
@@ -97,6 +104,16 @@ fun MainScreen(user_location:UserLocation){
         LazyColumn(contentPadding = PaddingValues(16.dp)) {
             items(articles){article->
                 News(article = article)
+                DBviewModel.upsert(
+                    NewsData(
+                         source=article.source.name,
+                         author=article.author,
+                         title=article.title,
+                         description=article.description,
+                         image=article.urlToImage,
+                         publishing_time=article.publishedAt,
+                    )
+                )
 
             }
         }
