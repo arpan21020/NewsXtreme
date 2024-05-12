@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -39,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -98,21 +100,25 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
 
     latitude=userLocation.getUserLocation(context = MainActivity.appContext).latitude
     longitude=userLocation.getUserLocation(context = MainActivity.appContext).longitude
+
+
     val categories = listOf("entertainment", "business", "technology", "education", "politics")
     var selectedCategory by remember { mutableStateOf("entertainment") }
     var searchQuery by remember { mutableStateOf("") }
+
+
     val viewModel:NewsViewModel=viewModel()
     val headlines=viewModel.topHeadlines.value
     val articles=headlines.articles
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 32.dp)
+            .padding(vertical = 28.dp)
     )  {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(horizontal = 24.dp, vertical = 14.dp)
         ) {
             Text(
                 text = "news",
@@ -139,7 +145,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
                             fontSize = 20.sp,
                             fontFamily = ExtraBold,
                             modifier = Modifier
-                                .padding(horizontal = 12.dp, vertical = 16.dp)
+                                .padding(horizontal = 12.dp, vertical = 14.dp)
                                 .clickable { selectedCategory = category },
                             color = if (category == selectedCategory) Primary else HeaderUnselected
                         )
@@ -147,7 +153,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(8.dp)
+                                    .height(4.dp)
                                     .background(color = Primary)
                             )
                         }
@@ -159,7 +165,9 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .padding(horizontal = 24.dp, vertical = 14.dp)
+                    .background(shape = RoundedCornerShape(14.dp), color = Color.White)
+                    .border(2.dp, Color.LightGray, shape = RoundedCornerShape(14.dp))
             ) {
                 TextField(
                     value = searchQuery,
@@ -174,21 +182,38 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
 
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp) // Add padding inside the TextField
-                        .background(color = Color.White, shape = RoundedCornerShape(16.dp) )
+                        .weight(1f)
+                        .clip(RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp))
+                        .background(color = Color.White,)
                 )
-                Button(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search Button")
-                }
+
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Button",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(topEnd = 14.dp, bottomEnd = 14.dp))
+                        .background(Primary)
+
+                        .padding(5.dp)
+                        .size(48.dp)
+                        .clickable {
+                            //when search clicked what should be done
+                            viewModel.updateCategory(searchQuery)
+                        }
+                )
+
             }
 
 
             //MyButton(viewModel)
             Log.d("LENGTH","${articles.size}")
             Log.d("LENGTH","${viewModel.category.value}")
-            LazyColumn(contentPadding = PaddingValues(16.dp)) {
+
+            val context = LocalContext.current
+            LazyColumn(contentPadding = PaddingValues(14.dp)) {
                 items(articles){article->
-                    NewsCard(article = article)
+                    NewsCard(article = article, context = context, mode = "online")
                     databaseViewModel.upsert(
                         NewsData(
                             source=article.source.name,
@@ -212,24 +237,25 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
 
 
 @Composable
-fun NewsCard(article: Article?){
-    val context = LocalContext.current
+fun NewsCard(article: Article?, context: Context, mode:String="online"){
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
-            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
-            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(16.dp))
+            .background(color = Color.White, shape = RoundedCornerShape(14.dp))
+            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(14.dp))
             .clickable {
                 val intent = Intent(context, ContentScreenActivity::class.java)
                 intent.putExtra("article", article)
+                intent.putExtra("mode", mode) // Replace "your_mode_string" with the actual string you want to pass
                 context.startActivity(intent)
             }
     ){
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(14.dp)
         ){
             if (article != null) {
                 Text(
@@ -237,14 +263,14 @@ fun NewsCard(article: Article?){
                     fontSize = 12.sp,
                     color = Primary,
                     fontFamily = ExtraBold,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(4.dp)
                 )
             }
             Text(
                 text = article?.title ?: "No Title",
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontFamily = Bold,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(4.dp)
             )
             Text(
                 text = article?.author ?: "No Author",
@@ -252,7 +278,7 @@ fun NewsCard(article: Article?){
                 color = Primary,
                 textAlign = TextAlign.Right,
                 fontFamily = MediumItalic,
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                modifier = Modifier.fillMaxWidth().padding(4.dp)
             )
         }
     }

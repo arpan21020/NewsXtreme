@@ -33,6 +33,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ContentScreenActivity" />
+        <activity android:name=".DownloadedNewsActivity" />
     </application>
 
 </manifest>
