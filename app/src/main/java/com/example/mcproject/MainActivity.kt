@@ -9,23 +9,33 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
@@ -34,9 +44,11 @@ import com.example.mcproject.NewsViewModel.DatabaseViewModel
 import com.example.mcproject.NewsViewModel.NewsViewModel
 import com.example.mcproject.api.Article
 import com.example.mcproject.database.NewsData
+import com.example.mcproject.ui.theme.BackgroundColor
+import com.example.mcproject.ui.theme.ExtraBold
+import com.example.mcproject.ui.theme.HeaderUnselected
 import com.example.mcproject.ui.theme.MCProjectTheme
-
-
+import com.example.mcproject.ui.theme.Primary
 
 
 class MainActivity : ComponentActivity() {
@@ -71,38 +83,92 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(userLocation:UserLocation, DBviewModel: DatabaseViewModel){
+fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
     var latitude by remember { mutableDoubleStateOf(0.0) }
     var longitude by remember { mutableDoubleStateOf(0.0) }
 
     latitude=userLocation.getUserLocation(context = MainActivity.appContext).latitude
     longitude=userLocation.getUserLocation(context = MainActivity.appContext).longitude
-
+    val categories = listOf("entertainment", "business", "technology", "education", "politics")
+    var selectedCategory by remember { mutableStateOf("entertainment") }
     val viewModel:NewsViewModel=viewModel()
     val headlines=viewModel.topHeadlines.value
     val articles=headlines.articles
-    Column {
-        MyButton(viewModel)
-        Log.d("LENGTH","${articles.size}")
-        Log.d("LENGTH","${viewModel.category.value}")
-        LazyColumn(contentPadding = PaddingValues(16.dp)) {
-            items(articles){article->
-                News(article = article)
-                DBviewModel.upsert(
-                    NewsData(
-                         source=article.source.name,
-                         author=article.author,
-                         title=article.title,
-                         description=article.description,
-                         image=article.urlToImage,
-                         publishing_time=article.publishedAt,
-                    )
-                )
-
-            }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 32.dp)
+    )  {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            Text(
+                text = "news",
+                fontSize = 36.sp,
+                fontFamily = ExtraBold,
+                color = Primary
+            )
+            Text(
+                text = "xtreme",
+                fontSize = 36.sp,
+                fontFamily = ExtraBold
+            )
         }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = BackgroundColor)
+        ) {
+            LazyRow {
+                items(categories) { category ->
+                    Column {
+                        Text(
+                            text = category,
+                            fontSize = 20.sp,
+                            fontFamily = ExtraBold,
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp, vertical = 16.dp)
+                                .clickable { selectedCategory = category },
+                            color = if (category == selectedCategory) Primary else HeaderUnselected
+                        )
+                        if (category == selectedCategory) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .background(Primary)
+                            )
+                        }
+                    }
 
+                }
+            }
+            Divider()
+            MyButton(viewModel)
+            Log.d("LENGTH","${articles.size}")
+            Log.d("LENGTH","${viewModel.category.value}")
+            LazyColumn(contentPadding = PaddingValues(16.dp)) {
+                items(articles){article->
+                    News(article = article)
+                    databaseViewModel.upsert(
+                        NewsData(
+                            source=article.source.name,
+                            author=article.author,
+                            title=article.title,
+                            description=article.description,
+                            image=article.urlToImage,
+                            publishing_time=article.publishedAt,
+                        )
+                    )
+
+                }
+            }
+
+        }
     }
+
 }
 
 
@@ -122,7 +188,7 @@ fun News(article: Article?){
                 .padding(15.dp)
         ) {
 //        Text(text = "Source: ${article?.source?.name ?: "N/A"}")
-            Text(text = "Title: ${article?.title ?: "N/A"}", fontSize = 20.sp)
+            Text(text = "Title: ${article?.publishedAt ?: "N/A"}", fontSize = 20.sp)
             Text(text = "Author: ${article?.author ?: "N/A"}")
             Text(text = "Description: ${article?.description ?: "N/A"}")
 //        Text(text = "Published At: ${article?.publishedAt ?: "N/A"}")

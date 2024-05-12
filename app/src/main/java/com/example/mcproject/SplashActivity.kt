@@ -76,7 +76,7 @@ class SplashActivity : ComponentActivity() {
             }
 
             LaunchedEffect(Unit) {
-                delay(24000)
+                delay(4000)
                 val mainIntent = Intent(this@SplashActivity, MainActivity::class.java)
                 mainIntent.putExtra("FROM_SPLASH", true)
                 startActivity(mainIntent)
