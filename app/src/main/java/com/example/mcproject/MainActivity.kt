@@ -1,6 +1,7 @@
 package com.example.mcproject
 
 import UserLocation
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -25,30 +26,41 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomNavigation
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.mcproject.NewsViewModel.DatabaseViewModel
 import com.example.mcproject.NewsViewModel.NewsViewModel
 import com.example.mcproject.api.Article
@@ -61,6 +73,14 @@ import com.example.mcproject.ui.theme.MCProjectTheme
 import com.example.mcproject.ui.theme.MediumItalic
 import com.example.mcproject.ui.theme.Primary
 
+data class BottomNavigationItem(
+    val title: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val hasNews: Boolean,
+    val badgeCount: Int? = null
+)
+
 
 class MainActivity : ComponentActivity() {
     private val userLocation:UserLocation=UserLocation(this)
@@ -69,6 +89,7 @@ class MainActivity : ComponentActivity() {
             private set
     }
     
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Only start SplashActivity if it's not already running
@@ -83,8 +104,47 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MCProjectTheme {
-//                CustomFontText()
-                MainScreen(userLocation = userLocation,databaseViewModel)
+                val items = listOf(
+                    BottomNavigationItem(
+                        title = "Home",
+                        selectedIcon = Icons.Filled.Email,
+                        unselectedIcon = Icons.Outlined.Email,
+                        hasNews = false
+                    ),
+                    BottomNavigationItem(
+                        title = "Downloads",
+                        selectedIcon = Icons.Filled.Favorite,
+                        unselectedIcon = Icons.Outlined.Favorite,
+                        hasNews = false
+                    )
+                )
+                var selectedItemIndex by rememberSaveable{
+                    mutableIntStateOf(0)
+                }
+                val navController = rememberNavController()
+                Scaffold(
+                    bottomBar = {
+                        NavigationBar{
+                            items.forEachIndexed { index, item ->
+//                                NavigationBarItem(
+//                                    selected = selectedItemIndex == index,
+//                                    onClick = {
+//                                        selectedItemIndex = index
+//                                        //navController.navigate("item$index")
+//                                    },
+//                                    icon = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
+//                                    text = item.title,
+//                                )
+                            }
+
+                        }
+                    }
+                ) {
+                    MainScreen(userLocation = userLocation,databaseViewModel)
+                }
+
+
+
             }
         }
     }
@@ -248,7 +308,10 @@ fun NewsCard(article: Article?, context: Context, mode:String="online"){
             .clickable {
                 val intent = Intent(context, ContentScreenActivity::class.java)
                 intent.putExtra("article", article)
-                intent.putExtra("mode", mode) // Replace "your_mode_string" with the actual string you want to pass
+                intent.putExtra(
+                    "mode",
+                    mode
+                ) // Replace "your_mode_string" with the actual string you want to pass
                 context.startActivity(intent)
             }
     ){
@@ -278,12 +341,14 @@ fun NewsCard(article: Article?, context: Context, mode:String="online"){
                 color = Primary,
                 textAlign = TextAlign.Right,
                 fontFamily = MediumItalic,
-                modifier = Modifier.fillMaxWidth().padding(4.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
             )
         }
     }
-
 }
+
 @Composable
 fun MyButton(viewModel:NewsViewModel) {
     val context = LocalContext.current

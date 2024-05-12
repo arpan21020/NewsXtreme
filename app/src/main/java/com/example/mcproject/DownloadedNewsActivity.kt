@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import com.example.mcproject.NewsViewModel.DatabaseViewModel
 import com.example.mcproject.NewsViewModel.NewsViewModel
 import com.example.mcproject.api.Article
@@ -46,6 +47,7 @@ import com.example.mcproject.ui.theme.BackgroundColor
 import com.example.mcproject.ui.theme.ExtraBold
 import com.example.mcproject.ui.theme.HeaderUnselected
 import com.example.mcproject.ui.theme.Primary
+
 
 class DownloadedNewsActivity : ComponentActivity() {
     private lateinit var viewModel: NewsViewModel
@@ -182,3 +184,4 @@ class DownloadedNewsActivity : ComponentActivity() {
         }
     }
 }
+

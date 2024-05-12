@@ -68,7 +68,7 @@ class ContentScreenActivity : ComponentActivity() {
     fun NewsContent(article: Article, mode:String = "online", contentScreenActivity: ComponentActivity) {
         Box(
             modifier = Modifier
-                .background(BackgroundColor)
+                .background(Color.White)
         ) {
 
 
@@ -108,7 +108,11 @@ class ContentScreenActivity : ComponentActivity() {
                     )
                 }
                 Column {
-                    LazyColumn(modifier = Modifier.padding(16.dp)) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .background(BackgroundColor)
+                    ) {
                         item {
                             article.publishedAt?.let {
                                 convertDateString(it)?.let { it1 ->
