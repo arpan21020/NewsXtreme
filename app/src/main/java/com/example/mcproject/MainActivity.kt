@@ -23,10 +23,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -34,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -61,11 +69,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Only start SplashActivity if it's not already running
-        if (!intent.getBooleanExtra("FROM_SPLASH", false)) {
-            val splashIntent = Intent(this, SplashActivity::class.java)
-            splashIntent.putExtra("FROM_MAIN", true)
-            startActivity(splashIntent)
-        }
+//        if (!intent.getBooleanExtra("FROM_SPLASH", false)) {
+//            val splashIntent = Intent(this, SplashActivity::class.java)
+//            splashIntent.putExtra("FROM_MAIN", true)
+//            startActivity(splashIntent)
+//        }
         val databaseViewModel= ViewModelProvider(this).get(DatabaseViewModel::class.java)
 
         appContext = applicationContext
@@ -91,6 +99,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
     longitude=userLocation.getUserLocation(context = MainActivity.appContext).longitude
     val categories = listOf("entertainment", "business", "technology", "education", "politics")
     var selectedCategory by remember { mutableStateOf("entertainment") }
+    var searchQuery by remember { mutableStateOf("") }
     val viewModel:NewsViewModel=viewModel()
     val headlines=viewModel.topHeadlines.value
     val articles=headlines.articles
@@ -138,7 +147,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(8.dp)
-                                    .background(Primary)
+                                    .background(color = Primary)
                             )
                         }
                     }
@@ -146,6 +155,31 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
                 }
             }
             Divider()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
+            ) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Primary,
+
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    label = { Text("Search") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp) // Add padding inside the TextField
+                )
+                Button(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search Button")
+                }
+            }
+
+
             MyButton(viewModel)
             Log.d("LENGTH","${articles.size}")
             Log.d("LENGTH","${viewModel.category.value}")
