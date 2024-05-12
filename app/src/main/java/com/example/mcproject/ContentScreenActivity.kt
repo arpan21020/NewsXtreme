@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -217,9 +219,9 @@ class ContentScreenActivity : ComponentActivity() {
 
 
 }
-
 @Composable
 fun DisplayImageFromUrl(url: String, mode: String = "online") {
+
     if (mode == "online"){
         SubcomposeAsyncImage(
             model = url,
@@ -230,14 +232,29 @@ fun DisplayImageFromUrl(url: String, mode: String = "online") {
                         .size(48.dp)
                 )
             },
+            error = {
+                Image(
+                    painter = painterResource(id = R.drawable.error__image),
+                    contentDescription = "Error image",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .size(250.dp, 230.dp)
-                .padding(16.dp)
+                .size(400.dp, 230.dp)
+                .padding(8.dp)
         )
     }
     else{
-        // Load the image from the local storage
+        Image(
+            painter = painterResource(id = R.drawable.error__image),
+            contentDescription = "Error image",
+                    modifier = Modifier
+                    .size(400.dp, 230.dp)
+                .padding(8.dp)
+        )
     }
 }
 
