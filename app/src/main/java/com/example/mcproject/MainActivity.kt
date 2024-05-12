@@ -21,7 +21,6 @@ class MainActivity : ComponentActivity() {
             startActivity(splashIntent)
         }
         appContext = applicationContext
-        enableEdgeToEdge()
         setContent {
             MCProjectTheme {
 

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
@@ -58,7 +58,6 @@ import com.example.mcproject.ui.theme.ExtraBold
 import com.example.mcproject.ui.theme.HeaderUnselected
 import com.example.mcproject.ui.theme.MCProjectTheme
 import com.example.mcproject.ui.theme.Primary
-
 
 class DownloadedNewsActivity : ComponentActivity() {
     private lateinit var viewModel: NewsViewModel
@@ -132,7 +131,7 @@ class DownloadedNewsActivity : ComponentActivity() {
                         }
                     }
                 ) {
-                    DownloadScreen(articles, this)
+                    DownloadScreen(articles)
                 }
 
             }
@@ -141,33 +140,21 @@ class DownloadedNewsActivity : ComponentActivity() {
 }
 
 @Composable
-fun DownloadScreen(articles: List<Article>, downloadScreenActivity: DownloadedNewsActivity) {
+fun DownloadScreen(articles: List<Article>) {
 
-    val categories = listOf("business", "entertainment", "general", "health", "science", "sports", "technology")
+    val categories = listOf("general","business", "entertainment",  "health", "science", "sports", "technology")
     var selectedCategory by remember { mutableStateOf("general") }
     var searchQuery by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 14.dp)
+            .padding(bottom = 24.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 14.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back Button",
-                tint = Color.Black,
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .size(36.dp)
-                    .clickable {
-                        downloadScreenActivity.finish()
-                    }
-            )
-
             Text(
                 text = "news",
                 fontSize = 36.sp,
@@ -260,4 +247,3 @@ fun DownloadScreen(articles: List<Article>, downloadScreenActivity: DownloadedNe
         }
     }
 }
-

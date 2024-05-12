@@ -75,7 +75,7 @@ class ContentScreenActivity : ComponentActivity() {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp)
+                    .padding(top = 16.dp)
 
             ) {
                 Row(
@@ -110,8 +110,11 @@ class ContentScreenActivity : ComponentActivity() {
                 Column {
                     LazyColumn(
                         modifier = Modifier
-                            .padding(16.dp)
+                            .fillMaxSize()
+                            .padding(vertical = 8.dp)
                             .background(BackgroundColor)
+                            .padding(horizontal = 16.dp)
+                            .padding(bottom = 1.dp)
                     ) {
                         item {
                             article.publishedAt?.let {

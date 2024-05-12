@@ -92,7 +92,6 @@ class HomeActivity : ComponentActivity() {
         val databaseViewModel= ViewModelProvider(this).get(DatabaseViewModel::class.java)
 
         appContext = applicationContext
-        enableEdgeToEdge()
         setContent {
             MCProjectTheme {
                 val items = listOf(
@@ -178,7 +177,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
     longitude=userLocation.getUserLocation(context = HomeActivity.appContext).longitude
 
 
-    val categories = listOf("business", "entertainment", "general", "health", "science", "sports", "technology")
+    val categories = listOf("general","business", "entertainment", "health", "science", "sports", "technology")
     var selectedCategory by remember { mutableStateOf("general") }
     var searchQuery by remember { mutableStateOf("") }
 
@@ -189,7 +188,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 28.dp)
+            .padding(bottom = 24.dp)
     )  {
         Row(
             modifier = Modifier
