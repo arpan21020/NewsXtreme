@@ -16,9 +16,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -27,11 +27,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -131,7 +128,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
         }
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .background(color = BackgroundColor)
         ) {
             LazyRow {
@@ -186,7 +183,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
             }
 
 
-            MyButton(viewModel)
+            //MyButton(viewModel)
             Log.d("LENGTH","${articles.size}")
             Log.d("LENGTH","${viewModel.category.value}")
             LazyColumn(contentPadding = PaddingValues(16.dp)) {
@@ -224,7 +221,6 @@ fun NewsCard(article: Article?){
             .background(color = Color.White, shape = RoundedCornerShape(16.dp))
             .border(1.dp, Color.LightGray, shape = RoundedCornerShape(16.dp))
             .clickable {
-                Log.d("Article", article.toString())
                 val intent = Intent(context, ContentScreenActivity::class.java)
                 intent.putExtra("article", article)
                 context.startActivity(intent)
@@ -235,13 +231,15 @@ fun NewsCard(article: Article?){
                 .fillMaxWidth()
                 .padding(16.dp)
         ){
-            Text(
-                text = article?.publishedAt ?: "No Date-Time",
-                fontSize = 12.sp,
-                color = Primary,
-                fontFamily = ExtraBold,
-                modifier = Modifier.padding(8.dp)
-            )
+            if (article != null) {
+                Text(
+                    text = article.publishedAt?.let { convertDateString(it) } ?: "No Date-Time",
+                    fontSize = 12.sp,
+                    color = Primary,
+                    fontFamily = ExtraBold,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
             Text(
                 text = article?.title ?: "No Title",
                 fontSize = 16.sp,
