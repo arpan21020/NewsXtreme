@@ -1,10 +1,15 @@
 package com.example.mcproject
 
-import android.annotation.SuppressLint
+import UserLocation
 import android.content.Intent
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,12 +27,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -38,6 +43,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,31 +52,47 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mcproject.NewsViewModel.DatabaseViewModel
 import com.example.mcproject.NewsViewModel.NewsViewModel
 import com.example.mcproject.api.Article
+import com.example.mcproject.database.NewsData
 import com.example.mcproject.ui.theme.BackgroundColor
+import com.example.mcproject.ui.theme.Bold
 import com.example.mcproject.ui.theme.ExtraBold
 import com.example.mcproject.ui.theme.HeaderUnselected
 import com.example.mcproject.ui.theme.MCProjectTheme
+import com.example.mcproject.ui.theme.MediumItalic
 import com.example.mcproject.ui.theme.Primary
 
+data class BottomNavigationItem(
+    val title: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val hasNews: Boolean,
+    val badgeCount: Int? = null
+)
 
-class DownloadedNewsActivity : ComponentActivity() {
-    private lateinit var viewModel: NewsViewModel
+
+class HomeActivity : ComponentActivity() {
+    private val userLocation:UserLocation=UserLocation(this)
+    companion object {
+        lateinit var appContext: Context
+    }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val databaseViewModel= ViewModelProvider(this).get(DatabaseViewModel::class.java)
 
-        ViewModelProvider(this)[DatabaseViewModel::class.java]
-        viewModel = ViewModelProvider(this)[NewsViewModel::class.java]
-        val headlines = viewModel.topHeadlines.value
-        val articles = headlines.articles
+        appContext = applicationContext
+        enableEdgeToEdge()
         setContent {
             MCProjectTheme {
                 val items = listOf(
@@ -87,15 +109,15 @@ class DownloadedNewsActivity : ComponentActivity() {
                         hasNews = false
                     )
                 )
-                var selectedItemIndex by rememberSaveable {
-                    mutableIntStateOf(1)
+                var selectedItemIndex by rememberSaveable{
+                    mutableIntStateOf(0)
                 }
                 val context = LocalContext.current
 
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier=Modifier.fillMaxSize(),
                     bottomBar = {
-                        NavigationBar {
+                        NavigationBar{
                             items.forEachIndexed { index, item ->
                                 NavigationBarItem(
                                     selected = selectedItemIndex == index,
@@ -103,13 +125,15 @@ class DownloadedNewsActivity : ComponentActivity() {
                                         selectedItemIndex = index
                                         when (index) {
                                             0 -> {
-                                                val intent = Intent(context, HomeActivity::class.java)
+                                                val intent = Intent(context, MainActivity::class.java)
                                                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                                                 context.startActivity(intent)
                                             }
 
                                             1 -> {
-                                                // Do nothing when Downloads item is clicked
+                                                val intent = Intent(context, DownloadedNewsActivity::class.java)
+                                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                                context.startActivity(intent)
                                             }
                                         }
                                     },
@@ -132,42 +156,46 @@ class DownloadedNewsActivity : ComponentActivity() {
                         }
                     }
                 ) {
-                    DownloadScreen(articles, this)
+                    MainScreen(userLocation = userLocation,databaseViewModel)
                 }
+
+
 
             }
         }
     }
+
+
+
 }
 
 @Composable
-fun DownloadScreen(articles: List<Article>, downloadScreenActivity: DownloadedNewsActivity) {
+fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
+    var latitude by remember { mutableDoubleStateOf(0.0) }
+    var longitude by remember { mutableDoubleStateOf(0.0) }
+
+    latitude=userLocation.getUserLocation(context = HomeActivity.appContext).latitude
+    longitude=userLocation.getUserLocation(context = HomeActivity.appContext).longitude
+
 
     val categories = listOf("business", "entertainment", "general", "health", "science", "sports", "technology")
     var selectedCategory by remember { mutableStateOf("general") }
     var searchQuery by remember { mutableStateOf("") }
+
+
+    val viewModel:NewsViewModel=viewModel()
+    val headlines=viewModel.topHeadlines.value
+    val articles=headlines.articles
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 14.dp)
-    ) {
+            .padding(vertical = 28.dp)
+    )  {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 14.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back Button",
-                tint = Color.Black,
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .size(36.dp)
-                    .clickable {
-                        downloadScreenActivity.finish()
-                    }
-            )
-
             Text(
                 text = "news",
                 fontSize = 36.sp,
@@ -246,18 +274,110 @@ fun DownloadScreen(articles: List<Article>, downloadScreenActivity: DownloadedNe
                         .size(48.dp)
                         .clickable {
                             //when search clicked what should be done
-                            //viewModel.updateCategory(searchQuery)
+                            viewModel.updateCategory(searchQuery)
                         }
                 )
 
             }
+
+
+            //MyButton(viewModel)
+            Log.d("LENGTH","${articles.size}")
+            Log.d("LENGTH","${viewModel.category.value}")
+
             val context = LocalContext.current
             LazyColumn(contentPadding = PaddingValues(14.dp)) {
-                items(articles) { article ->
-                    NewsCard(article, context, "downloaded")
+                items(articles){article->
+                    NewsCard(article = article, context = context, mode = "online")
+                    databaseViewModel.upsert(
+                        NewsData(
+                            source=article.source.name,
+                            author=article.author,
+                            title=article.title,
+                            description=article.description,
+                            image=article.urlToImage,
+                            publishing_time=article.publishedAt,
+                        )
+                    )
+
                 }
             }
+
+        }
+    }
+
+}
+
+
+
+
+@Composable
+fun NewsCard(article: Article?, context: Context, mode:String="online"){
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+            .background(color = Color.White, shape = RoundedCornerShape(14.dp))
+            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(14.dp))
+            .clickable {
+                val intent = Intent(context, ContentScreenActivity::class.java)
+                intent.putExtra("article", article)
+                intent.putExtra(
+                    "mode",
+                    mode
+                ) // Replace "your_mode_string" with the actual string you want to pass
+                context.startActivity(intent)
+            }
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp)
+        ){
+            if (article != null) {
+                Text(
+                    text = article.publishedAt?.let { convertDateString(it) } ?: "No Date-Time",
+                    fontSize = 12.sp,
+                    color = Primary,
+                    fontFamily = ExtraBold,
+                    modifier = Modifier.padding(4.dp)
+                )
+            }
+            Text(
+                text = article?.title ?: "No Title",
+                fontSize = 14.sp,
+                fontFamily = Bold,
+                modifier = Modifier.padding(4.dp)
+            )
+            Text(
+                text = article?.author ?: "No Author",
+                fontSize = 12.sp,
+                color = Primary,
+                textAlign = TextAlign.Right,
+                fontFamily = MediumItalic,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            )
         }
     }
 }
 
+@Composable
+fun MyButton(viewModel:NewsViewModel) {
+    val context = LocalContext.current
+    val intent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/")) }
+
+    Button(modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 36.dp),
+
+        onClick = {
+            viewModel.updateCategory("sports")
+
+//            context.startActivity(intent)
+        }) {
+        Text(text = "Navigate to Google!")
+    }
+}
