@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,9 +55,11 @@ import com.example.mcproject.NewsViewModel.NewsViewModel
 import com.example.mcproject.api.Article
 import com.example.mcproject.database.NewsData
 import com.example.mcproject.ui.theme.BackgroundColor
+import com.example.mcproject.ui.theme.Bold
 import com.example.mcproject.ui.theme.ExtraBold
 import com.example.mcproject.ui.theme.HeaderUnselected
 import com.example.mcproject.ui.theme.MCProjectTheme
+import com.example.mcproject.ui.theme.MediumItalic
 import com.example.mcproject.ui.theme.Primary
 
 
@@ -162,17 +166,19 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
             ) {
                 TextField(
                     value = searchQuery,
+                    placeholder = { Text("Search") },
                     onValueChange = { searchQuery = it },
                     colors = TextFieldDefaults.colors(
-                        focusedTextColor = Primary,
-
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
-                    label = { Text("Search") },
+
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp) // Add padding inside the TextField
+                        .background(color = Color.White, shape = RoundedCornerShape(16.dp) )
                 )
                 Button(onClick = { /*TODO*/ }) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search Button")
@@ -185,7 +191,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
             Log.d("LENGTH","${viewModel.category.value}")
             LazyColumn(contentPadding = PaddingValues(16.dp)) {
                 items(articles){article->
-                    News(article = article)
+                    NewsCard(article = article)
                     databaseViewModel.upsert(
                         NewsData(
                             source=article.source.name,
@@ -209,26 +215,47 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
 
 
 @Composable
-fun News(article: Article?){
-    Card(
-        shape= RoundedCornerShape(8.dp),
+fun NewsCard(article: Article?){
+    val context = LocalContext.current
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp)
-    ) {
+            .padding(12.dp)
+            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
+            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(16.dp))
+            .clickable {
+                Log.d("Article", article.toString())
+                val intent = Intent(context, ContentScreenActivity::class.java)
+                intent.putExtra("article", article)
+                context.startActivity(intent)
+            }
+    ){
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(15.dp)
-        ) {
-//        Text(text = "Source: ${article?.source?.name ?: "N/A"}")
-            Text(text = "Title: ${article?.publishedAt ?: "N/A"}", fontSize = 20.sp)
-            Text(text = "Author: ${article?.author ?: "N/A"}")
-            Text(text = "Description: ${article?.description ?: "N/A"}")
-//        Text(text = "Published At: ${article?.publishedAt ?: "N/A"}")
-//        Text(text="Content : ${article?.content}")
-
-
+                .padding(16.dp)
+        ){
+            Text(
+                text = article?.publishedAt ?: "No Date-Time",
+                fontSize = 12.sp,
+                color = Primary,
+                fontFamily = ExtraBold,
+                modifier = Modifier.padding(8.dp)
+            )
+            Text(
+                text = article?.title ?: "No Title",
+                fontSize = 16.sp,
+                fontFamily = Bold,
+                modifier = Modifier.padding(8.dp)
+            )
+            Text(
+                text = article?.author ?: "No Author",
+                fontSize = 12.sp,
+                color = Primary,
+                textAlign = TextAlign.Right,
+                fontFamily = MediumItalic,
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
+            )
         }
     }
 
