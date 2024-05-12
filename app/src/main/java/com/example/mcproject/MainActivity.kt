@@ -102,8 +102,8 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
     longitude=userLocation.getUserLocation(context = MainActivity.appContext).longitude
 
 
-    val categories = listOf("entertainment", "business", "technology", "education", "politics")
-    var selectedCategory by remember { mutableStateOf("entertainment") }
+    val categories = listOf("general","entertainment", "business", "science","technology", "politics")
+    var selectedCategory by remember { mutableStateOf("general") }
     var searchQuery by remember { mutableStateOf("") }
 
 
@@ -146,7 +146,8 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
                             fontFamily = ExtraBold,
                             modifier = Modifier
                                 .padding(horizontal = 12.dp, vertical = 14.dp)
-                                .clickable { selectedCategory = category },
+                                .clickable { selectedCategory = category;
+                                    viewModel.updateCategory(selectedCategory) },
                             color = if (category == selectedCategory) Primary else HeaderUnselected
                         )
                         if (category == selectedCategory) {
@@ -205,10 +206,6 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
 
             }
 
-
-            //MyButton(viewModel)
-            Log.d("LENGTH","${articles.size}")
-            Log.d("LENGTH","${viewModel.category.value}")
 
             val context = LocalContext.current
             LazyColumn(contentPadding = PaddingValues(14.dp)) {
