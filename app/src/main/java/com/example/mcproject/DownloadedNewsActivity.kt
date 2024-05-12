@@ -1,18 +1,19 @@
 package com.example.mcproject
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.remember
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
@@ -74,15 +76,15 @@ class DownloadedNewsActivity : ComponentActivity() {
             MCProjectTheme {
                 val items = listOf(
                     BottomNavigationItem(
-                        title = "Home",
-                        selectedIcon = Icons.Filled.Email,
-                        unselectedIcon = Icons.Outlined.Email,
+                        title = "Top News",
+                        selectedIcon = painterResource(id = R.drawable.news_selected),
+                        unselectedIcon = painterResource(id = R.drawable.news_unselected),
                         hasNews = false
                     ),
                     BottomNavigationItem(
                         title = "Downloads",
-                        selectedIcon = Icons.Filled.Favorite,
-                        unselectedIcon = Icons.Outlined.Favorite,
+                        selectedIcon = painterResource(id = R.drawable.download_selected),
+                        unselectedIcon = painterResource(id = R.drawable.download_unselected),
                         hasNews = false
                     )
                 )
@@ -97,6 +99,7 @@ class DownloadedNewsActivity : ComponentActivity() {
                         NavigationBar {
                             items.forEachIndexed { index, item ->
                                 NavigationBarItem(
+                                    alwaysShowLabel = false,
                                     selected = selectedItemIndex == index,
                                     onClick = {
                                         selectedItemIndex = index
@@ -114,17 +117,20 @@ class DownloadedNewsActivity : ComponentActivity() {
                                     },
                                     icon = {
                                         Icon(
-                                            imageVector = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
+                                            painter = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
                                             contentDescription = item.title,
                                             tint = if (selectedItemIndex == index) Primary else Color.Gray
+
                                         )
+                                        Spacer(modifier = Modifier.height(16.dp))
                                     },
                                     label = {
                                         Text(
                                             text = item.title,
-                                            color = if (selectedItemIndex == index) Primary else Color.Gray
+                                            color = if (selectedItemIndex == index) Primary else Color.Gray,
+                                            modifier=Modifier.padding(16.dp)
                                         )
-                                    },
+                                    }
                                 )
                             }
 

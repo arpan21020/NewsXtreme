@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import com.example.mcproject.HomeActivity.Companion.appContext
 import com.example.mcproject.ui.theme.MCProjectTheme
 
@@ -21,11 +20,7 @@ class MainActivity : ComponentActivity() {
             startActivity(splashIntent)
         }
         appContext = applicationContext
-        setContent {
-            MCProjectTheme {
 
-            }
-        }
     }
 
 

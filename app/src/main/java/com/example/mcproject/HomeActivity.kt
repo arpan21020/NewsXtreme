@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,11 +26,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -52,8 +47,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -73,8 +69,8 @@ import com.example.mcproject.ui.theme.Primary
 
 data class BottomNavigationItem(
     val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
+    val selectedIcon: Painter,
+    val unselectedIcon: Painter,
     val hasNews: Boolean,
     val badgeCount: Int? = null
 )
@@ -96,15 +92,15 @@ class HomeActivity : ComponentActivity() {
             MCProjectTheme {
                 val items = listOf(
                     BottomNavigationItem(
-                        title = "Home",
-                        selectedIcon = Icons.Filled.Email,
-                        unselectedIcon = Icons.Outlined.Email,
+                        title = "Top News",
+                        selectedIcon = painterResource(id = R.drawable.news_selected),
+                        unselectedIcon = painterResource(id = R.drawable.news_unselected),
                         hasNews = false
                     ),
                     BottomNavigationItem(
                         title = "Downloads",
-                        selectedIcon = Icons.Filled.Favorite,
-                        unselectedIcon = Icons.Outlined.Favorite,
+                        selectedIcon = painterResource(id = R.drawable.download_selected),
+                        unselectedIcon = painterResource(id = R.drawable.download_unselected),
                         hasNews = false
                     )
                 )
@@ -138,7 +134,7 @@ class HomeActivity : ComponentActivity() {
                                     },
                                     icon = {
                                         Icon(
-                                            imageVector = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
+                                            painter = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
                                             contentDescription = item.title,
                                             tint = if (selectedItemIndex == index) Primary else Color.Gray
                                         )
