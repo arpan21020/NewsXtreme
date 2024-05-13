@@ -16,7 +16,8 @@ import okhttp3.Dispatcher
 class NewsViewModel : ViewModel() {
 
     val category=MutableLiveData<String>("general")
-    val country=MutableLiveData<String>("in")
+    private var country=MutableLiveData<String>("in")
+
 
     val topHeadlines:MutableState<NewsResponse> = mutableStateOf(NewsResponse(
         status = "",
@@ -60,6 +61,11 @@ class NewsViewModel : ViewModel() {
             topHeadlines.value=getSearchResults(query)
         }
     }
+
+    fun setCountry(code:String){
+//        country.value=code
+    }
+
     private suspend  fun getTopHeadlines(category:String?,country:String?):NewsResponse{
         return repository.getTopHeadlines(category,country=country)
     }

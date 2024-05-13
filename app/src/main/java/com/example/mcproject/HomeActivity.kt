@@ -169,19 +169,22 @@ class HomeActivity : ComponentActivity() {
 fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel,context:Context){
     var latitude by remember { mutableDoubleStateOf(0.0) }
     var longitude by remember { mutableDoubleStateOf(0.0) }
-
+    var country by remember { mutableStateOf("") }
     latitude=userLocation.getUserLocation(context = HomeActivity.appContext).latitude
     longitude=userLocation.getUserLocation(context = HomeActivity.appContext).longitude
-
+    country=userLocation.getReadableLocation(latitude,longitude,HomeActivity.appContext)
+    Log.d("READABLE","${country}")
 
     val categories = listOf("general","business", "entertainment", "health", "science", "sports", "technology")
     var selectedCategory by remember { mutableStateOf("general") }
     var searchQuery by remember { mutableStateOf("") }
 
 
+
     val viewModel:NewsViewModel=viewModel()
     val headlines=viewModel.topHeadlines.value
     val articles=headlines.articles
+    viewModel.setCountry(country)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -295,17 +298,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel,c
             LazyColumn(contentPadding = PaddingValues(14.dp)) {
                 items(articles){article->
                     NewsCard(article = article, context = context, mode = "online")
-                    databaseViewModel.upsert(
-                        NewsData(
-                            source=article.source.name,
-                            author=article.author,
-                            title=article.title,
-                            description=article.description,
-                            image=article.urlToImage,
-                            category = selectedCategory,
-                            publishedAt =article.publishedAt,
-                        )
-                    )
+
 
                 }
             }

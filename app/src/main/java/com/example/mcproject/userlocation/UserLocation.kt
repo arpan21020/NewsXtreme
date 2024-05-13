@@ -165,7 +165,8 @@ class UserLocation(activity: Activity) {
 
             if (addresses?.isNotEmpty() == true) {
                 val address = addresses[0]
-                addressText = "${address.getAddressLine(0)}, ${address.locality}"
+                addressText=address.countryCode
+//                addressText = "${address.getAddressLine(0)}, ${address.locality}"
                 // Use the addressText in your app
                 Log.d("geolocation", addressText)
             }

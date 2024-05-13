@@ -37,9 +37,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import coil.compose.SubcomposeAsyncImage
+import com.example.mcproject.NewsViewModel.DatabaseViewModel
 import com.example.mcproject.api.Article
+import com.example.mcproject.database.NewsData
 import com.example.mcproject.ui.theme.BackgroundColor
 import com.example.mcproject.ui.theme.Bold
 import com.example.mcproject.ui.theme.ExtraBold
@@ -52,8 +55,12 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
 class ContentScreenActivity : ComponentActivity() {
+        private lateinit var DBviewModel: DatabaseViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
+        DBviewModel = ViewModelProvider(this)[DatabaseViewModel::class.java]
+
         val article = intent.getSerializableExtra("article") as Article
         var mode = intent.getStringExtra("mode")
 
@@ -83,16 +90,21 @@ class ContentScreenActivity : ComponentActivity() {
 
             Log.d("mode", mode.toString())
             setContent {
-
-                if (mode != null) {
-                    mode = "online"
+                if(mode=="downloaded"){
+                    mode?.let { NewsContent(DBviewModel,article, mode!!, text, this) }
                 }
-                mode?.let { NewsContent(article, it, text, this) }
+                else{
+
+                    if (mode != null) {
+                        mode = "online"
+                    }
+                    mode?.let { NewsContent(DBviewModel,article, it, text, this) }
+                }
             }
         }
 
     @Composable
-    fun NewsContent(article: Article, mode:String = "online", text: MutableState<String?>, contentScreenActivity: ComponentActivity) {
+    fun NewsContent(DBviewModel:DatabaseViewModel,article: Article, mode:String = "online", text: MutableState<String?>, contentScreenActivity: ComponentActivity) {
         Box(
             modifier = Modifier
                 .background(Color.White)
@@ -217,27 +229,37 @@ class ContentScreenActivity : ComponentActivity() {
                 }
 
             }
-            Icon(
-                imageVector = Icons.Default.AddCircle,
-                tint = Primary,
+            if(mode == "online"){
 
-                contentDescription = "Add the article",
-                modifier = Modifier
-                    .size(164.dp)
-                    .clip(RoundedCornerShape(50)) // This will make the shape circular
-                    .padding(48.dp)
-                    .border(8.dp, Primary, RoundedCornerShape(50)) // Add a red border
-                    .background(Color.White, RoundedCornerShape(50))
-                    .align(Alignment.BottomEnd)
-                    .clickable {
-                        // Add the article to the database
-//                        val db = NewsDatabase.getInstance(contentScreenActivity)
-//                        db.articleDao().insert(article)
-                    }
+                Icon(
+                    painter = painterResource(id = R.drawable.download_selected),
+                    tint = Primary,
+
+                    contentDescription = "Add the article",
+                    modifier = Modifier
+                        .size(150.dp)
+                        .padding(48.dp)
+                        .align(Alignment.BottomEnd)
+                        .clickable {
+                            DBviewModel.upsert(
+                                NewsData(
+                                    source = article.source.name,
+                                    author = article.author,
+                                    title = article.title,
+                                    description = text.value,
+                                    image = article.urlToImage,
+                                    publishedAt = article.publishedAt,
+                                )
+                            )
+                            // Add the article to the database
+    //                        val db = NewsDatabase.getInstance(contentScreenActivity)
+    //                        db.articleDao().insert(article)
+                        }
 
 
 
-            )
+                )
+            }
 
         }
 
@@ -278,8 +300,8 @@ fun DisplayImageFromUrl(url: String, mode: String = "online") {
             painter = painterResource(id = R.drawable.error__image),
             contentDescription = "Error image",
                     modifier = Modifier
-                    .size(400.dp, 230.dp)
-                .padding(8.dp)
+                        .size(400.dp, 230.dp)
+                        .padding(8.dp)
         )
     }
 }
