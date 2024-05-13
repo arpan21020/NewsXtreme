@@ -33,7 +33,7 @@ class NewsApiService {
 
         @GET("/v2/everything")
         suspend fun getSearchResults(
-            @Query("apiKey") apiKey: String="f2b7a577139f4631b5add4f6d7026a79",
+            @Query("apiKey") apiKey: String="284f3b7ce14b4035954c41789d701a50",
             @Query("pageSize") limit:Int?=100,
             @Query("q") search:String?="general"
         ):NewsResponse

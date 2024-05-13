@@ -22,13 +22,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -105,6 +109,8 @@ class ContentScreenActivity : ComponentActivity() {
 
     @Composable
     fun NewsContent(DBviewModel:DatabaseViewModel,article: Article, mode:String = "online", text: MutableState<String?>, contentScreenActivity: ComponentActivity) {
+        val showDialog = remember{ mutableStateOf(false) }
+
         Box(
             modifier = Modifier
                 .background(Color.White)
@@ -241,6 +247,7 @@ class ContentScreenActivity : ComponentActivity() {
                         .padding(48.dp)
                         .align(Alignment.BottomEnd)
                         .clickable {
+                            showDialog.value=true;
                             DBviewModel.upsert(
                                 NewsData(
                                     source = article.source.name,
@@ -257,6 +264,29 @@ class ContentScreenActivity : ComponentActivity() {
                         }
 
 
+
+                )
+            }
+            if (showDialog.value){
+                AlertDialog(
+
+                    title = {
+                        Text(text = "news Xtreme")
+                    },
+                    text = {
+                        Text(text = "Article saved to Downloads")
+                    },
+                    onDismissRequest = {
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog.value=false
+                            }
+                        ) {
+                            Text("Confirm")
+                        }
+                    },
 
                 )
             }
