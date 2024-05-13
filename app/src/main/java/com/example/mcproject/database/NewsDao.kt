@@ -19,9 +19,4 @@ interface NewsDao {
 
     @Query("DELETE FROM news_table")
     suspend fun clearAllData()
-
-    @Query("SELECT * from news_table where category = :category")
-    fun getNews(category: String): Flow<List<NewsData>>
-
-
 }

@@ -78,18 +78,19 @@ class DownloadedNewsActivity : ComponentActivity() {
 
 
         DBviewModel = ViewModelProvider(this)[DatabaseViewModel::class.java]
+//        DBviewModel.clearAllData()
 
         setContent {
             MCProjectTheme {
                 val items = listOf(
                     BottomNavigationItem(
-                        title = "Top News",
+                        title = "",
                         selectedIcon = painterResource(id = R.drawable.news_selected),
                         unselectedIcon = painterResource(id = R.drawable.news_unselected),
                         hasNews = false
                     ),
                     BottomNavigationItem(
-                        title = "Downloads",
+                        title = "",
                         selectedIcon = painterResource(id = R.drawable.download_selected),
                         unselectedIcon = painterResource(id = R.drawable.download_unselected),
                         hasNews = false

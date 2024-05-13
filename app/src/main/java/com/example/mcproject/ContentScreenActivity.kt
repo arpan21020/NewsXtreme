@@ -58,18 +58,24 @@ class ContentScreenActivity : ComponentActivity() {
         var mode = intent.getStringExtra("mode")
 
         var text: MutableState<String?> = mutableStateOf("Loading...")
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    val doc = Jsoup.connect(article.url).get()
-                    text.value = doc.text()
-                } catch (e: Exception) {
-                    text.value = "Some problem occurred! \n The content can't be displayed now."
-                    Log.d("NO_CONTENT", "${e}")
-                    e.printStackTrace()
-                } finally {
-                    if (text.value == null) {
-                        text.value = "Null firstParagraph"
+        if(mode=="downloaded"){
+            text.value=article.content
+        }
+        if(mode=="online"){
+
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    try {
+                        val doc = Jsoup.connect(article.url).get()
+                        text.value = doc.text()
+                    } catch (e: Exception) {
+                        text.value = "Some problem occurred! \n The content can't be displayed now."
+                        Log.d("NO_CONTENT", "${e}")
+                        e.printStackTrace()
+                    } finally {
+                        if (text.value == null) {
+                            text.value = "Null firstParagraph"
+                        }
                     }
                 }
             }
@@ -77,6 +83,7 @@ class ContentScreenActivity : ComponentActivity() {
 
             Log.d("mode", mode.toString())
             setContent {
+
                 if (mode != null) {
                     mode = "online"
                 }

@@ -93,13 +93,13 @@ class HomeActivity : ComponentActivity() {
             MCProjectTheme {
                 val items = listOf(
                     BottomNavigationItem(
-                        title = "Top News",
+                        title = "",
                         selectedIcon = painterResource(id = R.drawable.news_selected),
                         unselectedIcon = painterResource(id = R.drawable.news_unselected),
                         hasNews = false
                     ),
                     BottomNavigationItem(
-                        title = "Downloads",
+                        title = "",
                         selectedIcon = painterResource(id = R.drawable.download_selected),
                         unselectedIcon = painterResource(id = R.drawable.download_unselected),
                         hasNews = false
@@ -219,6 +219,7 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel,c
                             modifier = Modifier
                                 .padding(horizontal = 12.dp, vertical = 14.dp)
                                 .clickable { selectedCategory = category;
+                                    searchQuery=""
                                            viewModel.updateCategory(selectedCategory)},
                             color = if (category == selectedCategory) Primary else HeaderUnselected
                         )

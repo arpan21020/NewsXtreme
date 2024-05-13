@@ -82,10 +82,16 @@ dependencies {
     //  Room
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.0")
-// Jsoup
+
+//    Lifecycle components
+
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.4.0")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.0.0")
+    implementation ("androidx.lifecycle:lifecycle-common-java8:2.4.0")
+
+    // Jsoup
     implementation("org.jsoup:jsoup:1.17.2")
-// Coroutine
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+
+
 }
