@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">MCProject</string>
+    <string name="app_name">news Xtreme</string>
+    <string name="title_activity_main2">MainActivity2</string>
 </resources>

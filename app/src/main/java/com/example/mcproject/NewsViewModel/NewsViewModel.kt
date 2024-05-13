@@ -1,11 +1,17 @@
 package com.example.mcproject.NewsViewModel
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.example.mcproject.api.Article
 import com.example.mcproject.api.NewsRepository
 import com.example.mcproject.api.NewsResponse
@@ -73,4 +79,6 @@ class NewsViewModel : ViewModel() {
     private suspend fun getSearchResults(query:String?):NewsResponse{
         return repository.getSearchResults(query)
     }
+
+
 }

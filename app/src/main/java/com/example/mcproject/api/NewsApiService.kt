@@ -26,7 +26,7 @@ class NewsApiService {
         @GET("/v2/top-headlines")
         suspend fun getTopHeadlines(
                 @Query("country") country:String?="in",
-                @Query("apiKey") apiKey: String="f2b7a577139f4631b5add4f6d7026a79",
+                @Query("apiKey") apiKey: String="284f3b7ce14b4035954c41789d701a50",
                 @Query("category") category:String?="general",
                 @Query("pageSize") limit:Int?=100
         ): NewsResponse

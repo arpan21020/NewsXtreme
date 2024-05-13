@@ -252,8 +252,8 @@ class ContentScreenActivity : ComponentActivity() {
                                 )
                             )
                             // Add the article to the database
-    //                        val db = NewsDatabase.getInstance(contentScreenActivity)
-    //                        db.articleDao().insert(article)
+//                        val db = NewsDatabase.getInstance(contentScreenActivity)
+//                        db.articleDao().insert(article)
                         }
 
 
