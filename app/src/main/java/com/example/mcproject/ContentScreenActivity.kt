@@ -1,4 +1,5 @@
 package com.example.mcproject
+
 import java.text.SimpleDateFormat
 import java.util.*
 import android.os.Bundle
@@ -26,6 +27,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import coil.compose.SubcomposeAsyncImage
 import com.example.mcproject.api.Article
 import com.example.mcproject.ui.theme.BackgroundColor
@@ -42,23 +46,46 @@ import com.example.mcproject.ui.theme.ExtraBold
 import com.example.mcproject.ui.theme.Medium
 import com.example.mcproject.ui.theme.Primary
 import com.example.mcproject.ui.theme.SemiBoldItalic
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 
 class ContentScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val article = intent.getSerializableExtra("article") as Article
-        var mode= intent.getStringExtra("mode")
-        Log.d("mode",mode.toString())
-        setContent {
-            if (mode != null) {
-                mode="online"
+        var mode = intent.getStringExtra("mode")
+
+        var text: MutableState<String?> = mutableStateOf("Loading...")
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    val doc = Jsoup.connect(article.url).get()
+                    text.value = doc.text()
+                } catch (e: Exception) {
+                    text.value = "Some problem occurred! \n The content can't be displayed now."
+                    Log.d("NO_CONTENT", "${e}")
+                    e.printStackTrace()
+                } finally {
+                    if (text.value == null) {
+                        text.value = "Null firstParagraph"
+                    }
+                }
             }
-            mode?.let { NewsContent(article, it, this) }
         }
-    }
+
+            Log.d("mode", mode.toString())
+            setContent {
+                if (mode != null) {
+                    mode = "online"
+                }
+                mode?.let { NewsContent(article, it, text, this) }
+            }
+        }
 
     @Composable
-    fun NewsContent(article: Article, mode:String = "online", contentScreenActivity: ComponentActivity) {
+    fun NewsContent(article: Article, mode:String = "online", text: MutableState<String?>, contentScreenActivity: ComponentActivity) {
         Box(
             modifier = Modifier
                 .background(Color.White)
@@ -169,7 +196,8 @@ class ContentScreenActivity : ComponentActivity() {
                         item {
                             article.content?.let {
                                 Text(
-                                    text = "$it \n\n\n\n\n",
+                                    text = text.value!!,
+                                    //text = "$it \n\n\n\n\n",
                                     fontSize = 16.sp,
                                     fontFamily = Medium,
                                     lineHeight = 32.sp,
@@ -260,4 +288,3 @@ fun convertDateString(input: String): String? {
 
     return date?.let { outputFormat.format(it) }
 }
-
