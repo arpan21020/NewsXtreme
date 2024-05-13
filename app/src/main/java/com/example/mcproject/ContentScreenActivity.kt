@@ -1,9 +1,11 @@
 package com.example.mcproject
 
+import android.content.Context
 import java.text.SimpleDateFormat
 import java.util.*
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -60,11 +62,16 @@ import org.jsoup.Jsoup
 
 class ContentScreenActivity : ComponentActivity() {
         private lateinit var DBviewModel: DatabaseViewModel
+        companion object {
+            lateinit var appContext: Context
+                private set
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         DBviewModel = ViewModelProvider(this)[DatabaseViewModel::class.java]
-
+        appContext = applicationContext
         val article = intent.getSerializableExtra("article") as Article
         var mode = intent.getStringExtra("mode")
 
@@ -247,7 +254,8 @@ class ContentScreenActivity : ComponentActivity() {
                         .padding(48.dp)
                         .align(Alignment.BottomEnd)
                         .clickable {
-                            showDialog.value=true;
+                            Toast.makeText(ContentScreenActivity.appContext,"Article saved",Toast.LENGTH_LONG).show()
+
                             DBviewModel.upsert(
                                 NewsData(
                                     source = article.source.name,
@@ -264,29 +272,6 @@ class ContentScreenActivity : ComponentActivity() {
                         }
 
 
-
-                )
-            }
-            if (showDialog.value){
-                AlertDialog(
-
-                    title = {
-                        Text(text = "news Xtreme")
-                    },
-                    text = {
-                        Text(text = "Article saved to Downloads")
-                    },
-                    onDismissRequest = {
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showDialog.value=false
-                            }
-                        ) {
-                            Text("Okay")
-                        }
-                    },
 
                 )
             }

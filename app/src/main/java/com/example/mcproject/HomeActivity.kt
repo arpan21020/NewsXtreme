@@ -4,6 +4,10 @@ import UserLocation
 import android.content.Intent
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -38,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -90,7 +95,13 @@ class HomeActivity : ComponentActivity() {
 
         appContext = applicationContext
         setContent {
+            var netConnected by remember { mutableStateOf(true) }
+
             MCProjectTheme {
+                NetworkListener(context = applicationContext) {it->
+                    netConnected=it
+                }
+
                 val items = listOf(
                     BottomNavigationItem(
                         title = "",
@@ -106,9 +117,15 @@ class HomeActivity : ComponentActivity() {
                     )
                 )
                 var selectedItemIndex by rememberSaveable{
-                    mutableIntStateOf(0)
+                    mutableIntStateOf(0 )
                 }
+
                 val context = LocalContext.current
+                if(netConnected==false){
+                    val intent = Intent(context, DownloadedNewsActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    context.startActivity(intent)
+                }
 
                 Scaffold(
                     modifier=Modifier.fillMaxSize(),
@@ -121,7 +138,7 @@ class HomeActivity : ComponentActivity() {
                                         selectedItemIndex = index
                                         when (index) {
                                             0 -> {
-                                                val intent = Intent(context, MainActivity::class.java)
+                                                val intent = Intent(context, HomeActivity::class.java)
                                                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                                                 context.startActivity(intent)
                                             }
@@ -163,6 +180,36 @@ class HomeActivity : ComponentActivity() {
 
 
 
+}
+@Composable
+fun NetworkListener(context: Context, updateNetConnected: (Boolean) -> Unit) {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    val networkCallback = remember {
+        object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                updateNetConnected(true)
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                updateNetConnected(false)
+            }
+        }
+    }
+
+    DisposableEffect(key1 = context) {
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+
+        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+
+        onDispose {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        }
+    }
 }
 
 @Composable
@@ -221,9 +268,11 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel,c
                             fontFamily = ExtraBold,
                             modifier = Modifier
                                 .padding(horizontal = 12.dp, vertical = 14.dp)
-                                .clickable { selectedCategory = category;
-                                    searchQuery=""
-                                           viewModel.updateCategory(selectedCategory)},
+                                .clickable {
+                                    selectedCategory = category;
+                                    searchQuery = ""
+                                    viewModel.updateCategory(selectedCategory)
+                                },
                             color = if (category == selectedCategory) Primary else HeaderUnselected
                         )
                         if (category == selectedCategory) {
@@ -275,12 +324,11 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel,c
                         .size(48.dp)
                         .clickable {
                             //when search clicked what should be done
-                            if (searchQuery==""){
-                                Log.d("COMPARISON","Comparision successfull")
+                            if (searchQuery == "") {
+                                Log.d("COMPARISON", "Comparision successfull")
 
-                            }
-                            else{
-                                Log.d("COMPARISION","UNSUECCESSFUL :$searchQuery")
+                            } else {
+                                Log.d("COMPARISION", "UNSUECCESSFUL :$searchQuery")
                                 viewModel.userSearch(searchQuery)
 
                             }
