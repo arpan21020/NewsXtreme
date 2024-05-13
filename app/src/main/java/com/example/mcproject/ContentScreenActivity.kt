@@ -284,7 +284,7 @@ class ContentScreenActivity : ComponentActivity() {
                                 showDialog.value=false
                             }
                         ) {
-                            Text("Confirm")
+                            Text("Okay")
                         }
                     },
 
