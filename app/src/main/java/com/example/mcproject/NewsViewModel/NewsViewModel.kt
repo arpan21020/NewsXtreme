@@ -54,7 +54,17 @@ class NewsViewModel : ViewModel() {
             Log.e("NewsUpdate", "Error updating news data: ${e.message}")
         }
     }
+
+    fun userSearch(query:String?){
+        viewModelScope.launch(Dispatchers.IO) {
+            topHeadlines.value=getSearchResults(query)
+        }
+    }
     private suspend  fun getTopHeadlines(category:String?,country:String?):NewsResponse{
         return repository.getTopHeadlines(category,country=country)
+    }
+
+    private suspend fun getSearchResults(query:String?):NewsResponse{
+        return repository.getSearchResults(query)
     }
 }

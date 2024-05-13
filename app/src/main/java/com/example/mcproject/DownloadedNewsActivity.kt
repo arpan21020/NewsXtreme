@@ -1,10 +1,12 @@
 package com.example.mcproject
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -39,6 +41,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,29 +52,33 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.example.mcproject.NewsViewModel.DatabaseViewModel
 import com.example.mcproject.NewsViewModel.NewsViewModel
 import com.example.mcproject.api.Article
+import com.example.mcproject.api.Source
+import com.example.mcproject.database.NewsData
 import com.example.mcproject.ui.theme.BackgroundColor
+import com.example.mcproject.ui.theme.Bold
 import com.example.mcproject.ui.theme.ExtraBold
 import com.example.mcproject.ui.theme.HeaderUnselected
 import com.example.mcproject.ui.theme.MCProjectTheme
+import com.example.mcproject.ui.theme.MediumItalic
 import com.example.mcproject.ui.theme.Primary
 
 class DownloadedNewsActivity : ComponentActivity() {
-    private lateinit var viewModel: NewsViewModel
+    private lateinit var DBviewModel: DatabaseViewModel
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ViewModelProvider(this)[DatabaseViewModel::class.java]
-        viewModel = ViewModelProvider(this)[NewsViewModel::class.java]
-        val headlines = viewModel.topHeadlines.value
-        val articles = headlines.articles
+
+        DBviewModel = ViewModelProvider(this)[DatabaseViewModel::class.java]
+
         setContent {
             MCProjectTheme {
                 val items = listOf(
@@ -137,7 +144,7 @@ class DownloadedNewsActivity : ComponentActivity() {
                         }
                     }
                 ) {
-                    DownloadScreen(articles)
+                    DownloadScreen(DBviewModel)
                 }
 
             }
@@ -146,8 +153,10 @@ class DownloadedNewsActivity : ComponentActivity() {
 }
 
 @Composable
-fun DownloadScreen(articles: List<Article>) {
-
+fun DownloadScreen(DBviewModel:DatabaseViewModel) {
+    val headlines by DBviewModel.allData.observeAsState(initial = emptyList())
+    val articles = headlines
+    Log.d("LENGTH_Downloads","${articles.size}")
     val categories = listOf("general","business", "entertainment",  "health", "science", "sports", "technology")
     var selectedCategory by remember { mutableStateOf("general") }
     var searchQuery by remember { mutableStateOf("") }
@@ -187,7 +196,9 @@ fun DownloadScreen(articles: List<Article>) {
                             fontFamily = ExtraBold,
                             modifier = Modifier
                                 .padding(horizontal = 12.dp, vertical = 14.dp)
-                                .clickable { selectedCategory = category },
+                                .clickable { selectedCategory = category;
+//                                    DBviewModel.updateCategory(selectedCategory)
+                                           },
                             color = if (category == selectedCategory) Primary else HeaderUnselected
                         )
                         if (category == selectedCategory) {
@@ -203,53 +214,131 @@ fun DownloadScreen(articles: List<Article>) {
                 }
             }
             Divider()
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 14.dp)
-                    .background(shape = RoundedCornerShape(14.dp), color = Color.White)
-                    .border(2.dp, Color.LightGray, shape = RoundedCornerShape(14.dp))
-            ) {
-                TextField(
-                    value = searchQuery,
-                    placeholder = { Text("Search") },
-                    onValueChange = { searchQuery = it },
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .clip(RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp))
-                        .background(color = Color.White)
-                )
-
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Button",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(topEnd = 14.dp, bottomEnd = 14.dp))
-                        .background(Primary)
-                        .padding(5.dp)
-                        .size(48.dp)
-                        .clickable {
-                            //when search clicked what should be done
-                            //viewModel.updateCategory(searchQuery)
-                        }
-                )
-
-            }
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(horizontal = 24.dp, vertical = 14.dp)
+//                    .background(shape = RoundedCornerShape(14.dp), color = Color.White)
+//                    .border(2.dp, Color.LightGray, shape = RoundedCornerShape(14.dp))
+//            ) {
+//                TextField(
+//                    value = searchQuery,
+//                    placeholder = { Text("Search") },
+//                    onValueChange = { searchQuery = it },
+//                    colors = TextFieldDefaults.colors(
+//                        focusedTextColor = Color.Black,
+//                        unfocusedTextColor = Color.Black,
+//                        focusedIndicatorColor = Color.Transparent,
+//                        unfocusedIndicatorColor = Color.Transparent
+//                    ),
+//
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .weight(1f)
+//                        .clip(RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp))
+//                        .background(color = Color.White)
+//                )
+//
+//                Icon(
+//                    imageVector = Icons.Default.Search,
+//                    contentDescription = "Search Button",
+//                    tint = Color.White,
+//                    modifier = Modifier
+//                        .clip(RoundedCornerShape(topEnd = 14.dp, bottomEnd = 14.dp))
+//                        .background(Primary)
+//                        .padding(5.dp)
+//                        .size(48.dp)
+//                        .clickable {
+//                            //when search clicked what should be done
+//                            //viewModel.updateCategory(searchQuery)
+//                        }
+//                )
+//
+//            }
             val context = LocalContext.current
             LazyColumn(contentPadding = PaddingValues(14.dp)) {
                 items(articles) { article ->
-                    NewsCard(article, context, "downloaded")
+                    NewsCard2(article, context, "downloaded")
                 }
             }
+        }
+    }
+
+
+
+}
+
+@Composable
+fun NewsCard2(news: NewsData?, context: Context, mode:String="downloaded"){
+    var article:Article?=Article(
+        source= Source(id="",name=""),
+        author="",
+        title="",
+        description="",
+        url="",
+        urlToImage="",
+        publishedAt="",
+        content=""
+    )
+    if (news != null) {
+        article=Article(
+            source= Source(id="",name=news.source?:""),
+            author=news.author,
+            title=news.title?:"",
+            description="",
+            url="",
+            urlToImage="",
+            publishedAt=news.publishedAt,
+            content=news.description
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+            .background(color = Color.White, shape = RoundedCornerShape(14.dp))
+            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(14.dp))
+            .clickable {
+                val intent = Intent(context, ContentScreenActivity::class.java);
+                intent.putExtra("article", article)
+                intent.putExtra(
+                    "mode",
+                    mode
+                ) // Replace "your_mode_string" with the actual string you want to pass
+                context.startActivity(intent)
+            }
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp)
+        ){
+            if (article != null) {
+                Text(
+                    text = article.publishedAt?.let { convertDateString(it) } ?: "No Date-Time",
+                    fontSize = 12.sp,
+                    color = Primary,
+                    fontFamily = ExtraBold,
+                    modifier = Modifier.padding(4.dp)
+                )
+            }
+            Text(
+                text = article?.title ?: "No Title",
+                fontSize = 14.sp,
+                fontFamily = Bold,
+                modifier = Modifier.padding(4.dp)
+            )
+            Text(
+                text = article?.author ?: "No Author",
+                fontSize = 12.sp,
+                color = Primary,
+                textAlign = TextAlign.Right,
+                fontFamily = MediumItalic,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            )
         }
     }
 }

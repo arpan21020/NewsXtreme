@@ -7,6 +7,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -151,7 +152,7 @@ class HomeActivity : ComponentActivity() {
                         }
                     }
                 ) {
-                    MainScreen(userLocation = userLocation,databaseViewModel)
+                    MainScreen(userLocation = userLocation,databaseViewModel, LocalContext.current)
                 }
 
 
@@ -165,7 +166,7 @@ class HomeActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
+fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel,context:Context){
     var latitude by remember { mutableDoubleStateOf(0.0) }
     var longitude by remember { mutableDoubleStateOf(0.0) }
 
@@ -217,7 +218,8 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
                             fontFamily = ExtraBold,
                             modifier = Modifier
                                 .padding(horizontal = 12.dp, vertical = 14.dp)
-                                .clickable { selectedCategory = category },
+                                .clickable { selectedCategory = category;
+                                           viewModel.updateCategory(selectedCategory)},
                             color = if (category == selectedCategory) Primary else HeaderUnselected
                         )
                         if (category == selectedCategory) {
@@ -269,7 +271,15 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
                         .size(48.dp)
                         .clickable {
                             //when search clicked what should be done
-                            viewModel.updateCategory(searchQuery)
+                            if (searchQuery==""){
+                                Log.d("COMPARISON","Comparision successfull")
+
+                            }
+                            else{
+                                Log.d("COMPARISION","UNSUECCESSFUL :$searchQuery")
+                                viewModel.userSearch(searchQuery)
+
+                            }
                         }
                 )
 
@@ -291,7 +301,8 @@ fun MainScreen(userLocation:UserLocation, databaseViewModel: DatabaseViewModel){
                             title=article.title,
                             description=article.description,
                             image=article.urlToImage,
-                            publishing_time=article.publishedAt,
+                            category = selectedCategory,
+                            publishedAt =article.publishedAt,
                         )
                     )
 
@@ -359,20 +370,3 @@ fun NewsCard(article: Article?, context: Context, mode:String="online"){
     }
 }
 
-@Composable
-fun MyButton(viewModel:NewsViewModel) {
-    val context = LocalContext.current
-    val intent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/")) }
-
-    Button(modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 36.dp),
-
-        onClick = {
-            viewModel.updateCategory("sports")
-
-//            context.startActivity(intent)
-        }) {
-        Text(text = "Navigate to Google!")
-    }
-}

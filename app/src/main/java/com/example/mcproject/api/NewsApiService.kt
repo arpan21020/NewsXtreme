@@ -19,6 +19,9 @@ class NewsApiService {
         return TopHeadlinesApi.getTopHeadlines(category=category,country=country)
     }
 
+    suspend fun getSearchResults(query:String?):NewsResponse{
+        return TopHeadlinesApi.getSearchResults(search=query)
+    }
     interface NewsApiTopHeadlines{
         @GET("/v2/top-headlines")
         suspend fun getTopHeadlines(
@@ -27,5 +30,12 @@ class NewsApiService {
                 @Query("category") category:String?="general",
                 @Query("pageSize") limit:Int?=100
         ): NewsResponse
+
+        @GET("/v2/everything")
+        suspend fun getSearchResults(
+            @Query("apiKey") apiKey: String="f2b7a577139f4631b5add4f6d7026a79",
+            @Query("pageSize") limit:Int?=100,
+            @Query("q") search:String?="general"
+        ):NewsResponse
     }
 }

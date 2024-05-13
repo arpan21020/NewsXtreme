@@ -6,5 +6,8 @@ class NewsRepository() {
     suspend fun getTopHeadlines(category:String?,country:String?):NewsResponse{
         return newsService.getTopHeadlines(category,country=country)
     }
+    suspend fun getSearchResults(query:String?):NewsResponse{
+        return newsService.getSearchResults(query)
+    }
 
 }
